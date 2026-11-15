@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Todo List</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        header {
+            background: #263b5e;
+            color: white;
+            text-align: center;
+            padding: 25px 15px;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 15px;
+        }
+
+        #count {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #todo-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .todo-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .todo-card h3 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #263b5e;
+            color: white;
+            margin-top: 30px;
+        }
+
+        /* Tablet and desktop layout */
+        @media (min-width: 768px) {
+            #todo-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .message {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>My Todo List</h1>
+        <p>Stay organized and complete your tasks!</p>
+    </header>
+
+    <main>
+        <h2>My Tasks</h2>
+
+        <p id="count">Loading task count...</p>
+
+        <div id="todo-container">
+            <p class="message">Loading…</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>My Todo Application &copy; 2026</p>
+    </footer>
+
+    <script>
+        async function loadTodos() {
+            const container = document.getElementById("todo-container");
+            const count = document.getElementById("count");
+
+            try {
+                container.textContent = "Loading…";
+
+                const response = await fetch(
+                    "https://jsonplaceholder.typicode.com/todos?_limit=12"
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch todos");
+                }
+
+                const todos = await response.json();
+
+                const completed = todos.filter(
+                    todo => todo.completed
+                ).length;
+
+                count.textContent =
+                    `${completed} of ${todos.length} completed`;
+
+                container.innerHTML = "";
+
+                todos.forEach(todo => {
+                    const card = document.createElement("div");
+                    card.className = "todo-card";
+
+                    const title = document.createElement("h3");
+                    title.textContent = todo.title;
+
+                    const status = document.createElement("p");
+                    status.textContent = todo.completed
+                        ? "✅ Completed"
+                        : "⬜ Not completed";
+
+                    card.appendChild(title);
+                    card.appendChild(status);
+
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                count.textContent = "Task count unavailable";
+
+                container.innerHTML =
+                    '<p class="message">Sorry! We could not load your tasks. Please try again later.</p>';
+
+                console.error(error);
+            }
+        }
+
+        loadTodos();
+    </script>
+
+</body>
+</html>
